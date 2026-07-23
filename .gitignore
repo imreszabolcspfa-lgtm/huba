@@ -1,0 +1,13 @@
+# Debug audio dumps (test artifacts, not source)
+debug_audio/
+static_audio/
+
+# Google service account key -- never commit credentials
+*.json
+
+# Local tooling binary, not part of the deployed app
+ngrok.exe
+
+# Python
+__pycache__/
+*.pyc

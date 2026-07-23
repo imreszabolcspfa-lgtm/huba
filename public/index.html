@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Huba — hívj, ha kérdésed van</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FBF8F2;
+    --paper-deep: #F2ECDE;
+    --ink: #26241F;
+    --blue: #1F8FCF;
+    --blue-deep: #0F6C9E;
+    --red: #D8342A;
+    --red-deep: #B32A21;
+    --yellow: #E8A233;
+    --green: #4C7A3D;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Literata', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- decorative folk border ---------- */
+  .border-strip {
+    width: 100%;
+    height: 22px;
+    background-repeat: repeat-x;
+    background-size: 44px 22px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='22' viewBox='0 0 44 22'%3E%3Cpath d='M22 4 C 17 4 15 9 22 11 C 29 9 27 4 22 4 Z' fill='none' stroke='%231F8FCF' stroke-width='1.4'/%3E%3Cpath d='M22 11 L22 18' stroke='%231F8FCF' stroke-width='1.4'/%3E%3Ccircle cx='6' cy='11' r='2' fill='%23D8342A'/%3E%3Ccircle cx='38' cy='11' r='2' fill='%23D8342A'/%3E%3C/svg%3E");
+    opacity: 0.9;
+  }
+
+  /* ---------- hero ---------- */
+  header.hero {
+    padding: 56px 0 40px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-family: 'Literata', serif;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    margin: 0 0 20px;
+  }
+
+  .logo-mark {
+    width: min(420px, 78vw);
+    height: auto;
+    margin: 0 auto 16px;
+    display: block;
+  }
+
+  .tagline {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(19px, 3vw, 24px);
+    color: var(--ink);
+    max-width: 480px;
+    margin: 0 auto 34px;
+  }
+
+  .call-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #FFFFFF;
+    border: 2px solid var(--blue);
+    border-radius: 4px;
+    padding: 22px 40px;
+    box-shadow: 0 2px 0 rgba(31, 143, 207, 0.15);
+  }
+
+  .call-box .label {
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+  }
+
+  .call-box .number {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 6vw, 40px);
+    color: var(--red);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+
+  .call-box .number:hover,
+  .call-box .number:focus-visible { color: var(--red-deep); }
+
+  .call-box .hint {
+    font-size: 14px;
+    color: var(--blue-deep);
+    margin-top: 4px;
+  }
+
+  /* ---------- sections ---------- */
+  section {
+    padding: 44px 0;
+    border-top: 1px solid rgba(31, 143, 207, 0.18);
+  }
+
+  section h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--blue-deep);
+    margin: 0 0 16px;
+  }
+
+  section p {
+    margin: 0 0 14px;
+    max-width: 58ch;
+  }
+
+  ul.plain {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul.plain li {
+    padding: 10px 0 10px 30px;
+    position: relative;
+    border-bottom: 1px dashed rgba(76, 122, 61, 0.3);
+  }
+
+  ul.plain li:last-child { border-bottom: none; }
+
+  ul.plain li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .not-box {
+    background: rgba(216, 52, 42, 0.05);
+    border-left: 3px solid var(--red);
+    padding: 18px 22px;
+    border-radius: 2px;
+  }
+
+  .not-box p { margin: 0 0 8px; }
+  .not-box p:last-child { margin-bottom: 0; }
+
+  .crisis {
+    font-size: 15px;
+    color: var(--green);
+  }
+
+  .crisis strong { color: var(--ink); }
+
+  footer {
+    padding: 36px 0 56px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--blue-deep);
+  }
+
+  footer .name-mark {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--red);
+  }
+
+  /* ---------- second hero: "Kinek szól?" with wallpaper ---------- */
+  section#kinek {
+    position: relative;
+    padding: 64px 0;
+    background-image:
+      linear-gradient(180deg, rgba(251, 248, 242, 0.88) 0%, rgba(251, 248, 242, 0.94) 100%),
+      url("/old.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  section#kinek h2,
+  section#kinek p {
+    position: relative;
+  }
+</style>
+</head>
+<body>
+
+<div class="border-strip" role="presentation"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Telefonos tanácsadó szolgálat</p>
+    <img class="logo-mark" src="/base.png" alt="Huba">
+    <p class="tagline">Megbízható válaszok egy hívás távolságra.</p>
+
+    <div class="call-box">
+      <span class="label">Elérhető</span>
+      <a class="number" href="tel:+40000000000">+40 000 000 000</a>
+      <span class="hint">Internet és okostelefon nélkül is használható</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section id="mi-ez">
+      <h2>Mi ez?</h2>
+      <p>Huba egy telefonos tanácsadó szolgálat, amely azonnali, érthető válaszokat ad a mindennapi kérdésekre. Nincs szükség internetkapcsolatra, alkalmazásra vagy regisztrációra — mindössze egy hívásra, anyanyelven, székely hangvétellel.</p>
+    </section>
+
+    <section id="kinek">
+      <h2>Kinek szól?</h2>
+      <p>Elsősorban azoknak, akik nem használnak internetet — időseknek, és mindazoknak, akik számára egyszerűbb és természetesebb egy kérdést kimondani, mint azt keresőbe gépelni.</p>
+    </section>
+
+    <section id="segit">
+      <h2>Miben segít?</h2>
+      <ul class="plain">
+        <li>Meghibásodott eszközök: tájékozódás a lehetséges okokról és teendőkről</li>
+        <li>Hivatalos iratok és nyomtatványok értelmezése</li>
+        <li>Főzési és tartósítási tanácsok</li>
+        <li>Készülékek és telefonok beállítása</li>
+        <li>Bármely hétköznapi kérdés, amelyre másképp nehéz lenne választ találni</li>
+      </ul>
+    </section>
+
+    <section id="mi-nem">
+      <h2>Mi nem ez</h2>
+      <div class="not-box">
+        <p>Huba nem helyettesíti a családot vagy a közösséget — gyakran éppen azt javasolja, hogy a hívó forduljon hozzájuk is.</p>
+        <p>Nem ad orvosi diagnózist és nem lát el jogi képviseletet — ezekben az esetekben minden alkalommal szakemberhez irányít.</p>
+        <p class="crisis">Nem lelki válsághelyzeti szolgálat. Nehéz lelkiállapot esetén kérjük, hívja a <strong>Lelkisegély telefonszolgálatot: 116-123</strong> (díjmentes, a nap 24 órájában elérhető).</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="border-strip" role="presentation"></div>
+
+<footer>
+  <div class="wrap">
+    <p><span class="name-mark">Huba</span> — megbízható segítség, egy hívásnyira.</p>
+  </div>
+</footer>
+
+</body>
+</html>
