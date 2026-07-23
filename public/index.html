@@ -18,6 +18,7 @@
     --red-deep: #B32A21;
     --yellow: #E8A233;
     --green: #4C7A3D;
+    --line: rgba(31, 143, 207, 0.18);
   }
 
   * { box-sizing: border-box; }
@@ -44,7 +45,7 @@
   }
 
   .wrap {
-    max-width: 720px;
+    max-width: 1180px;
     margin: 0 auto;
     padding: 0 28px;
   }
@@ -61,8 +62,17 @@
 
   /* ---------- hero ---------- */
   header.hero {
-    padding: 56px 0 40px;
+    padding: 56px 0 48px;
+    background: var(--paper-deep);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    align-items: center;
     text-align: center;
+    justify-items: center;
   }
 
   .eyebrow {
@@ -85,10 +95,10 @@
     font-family: 'Fraunces', serif;
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(19px, 3vw, 24px);
+    font-size: clamp(19px, 2.4vw, 26px);
     color: var(--ink);
     max-width: 480px;
-    margin: 0 auto 34px;
+    margin: 0 auto;
   }
 
   .call-box {
@@ -99,7 +109,7 @@
     background: #FFFFFF;
     border: 2px solid var(--blue);
     border-radius: 4px;
-    padding: 22px 40px;
+    padding: 26px 44px;
     box-shadow: 0 2px 0 rgba(31, 143, 207, 0.15);
   }
 
@@ -113,10 +123,11 @@
   .call-box .number {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: clamp(28px, 6vw, 40px);
+    font-size: clamp(28px, 4vw, 40px);
     color: var(--red);
     text-decoration: none;
     letter-spacing: 0.01em;
+    white-space: nowrap;
   }
 
   .call-box .number:hover,
@@ -126,13 +137,29 @@
     font-size: 14px;
     color: var(--blue-deep);
     margin-top: 4px;
+    text-align: center;
+  }
+
+  @media (min-width: 900px) {
+    header.hero { padding: 72px 0; }
+
+    .hero-inner {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      text-align: left;
+      justify-items: stretch;
+    }
+
+    .hero-text { justify-self: start; }
+    .eyebrow { text-align: left; }
+    .logo-mark { margin: 0 0 20px; }
+    .tagline { margin: 0; max-width: 46ch; }
+
+    .call-box { justify-self: end; }
   }
 
   /* ---------- sections ---------- */
-  section {
-    padding: 44px 0;
-    border-top: 1px solid rgba(31, 143, 207, 0.18);
-  }
+  main { padding-bottom: 8px; }
 
   section h2 {
     font-family: 'Fraunces', serif;
@@ -147,33 +174,133 @@
     max-width: 58ch;
   }
 
+  section p:last-child { margin-bottom: 0; }
+
+  /* intro pair: "Mi ez?" + "Kinek szól?" as a two-up layout on wide screens */
+  .intro-grid {
+    border-top: 1px solid var(--line);
+    padding: 48px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .intro-grid section {
+    padding: 32px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .intro-grid section:first-child { border-top: none; padding-top: 0; }
+  .intro-grid section:last-child { padding-bottom: 0; }
+
+  #kinek {
+    position: relative;
+    border-radius: 6px;
+    background-image:
+      linear-gradient(180deg, rgba(251, 248, 242, 0.88) 0%, rgba(251, 248, 242, 0.94) 100%),
+      url("/old.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  @media (min-width: 900px) {
+    .intro-grid {
+      grid-template-columns: 5fr 7fr;
+      gap: 48px;
+    }
+
+    .intro-grid section,
+    .intro-grid section:first-child,
+    .intro-grid section:last-child {
+      border-top: none;
+      padding: 0;
+    }
+
+    #mi-ez {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #kinek {
+      padding: 40px 36px !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #kinek p { max-width: 42ch; }
+  }
+
+  /* ---------- "Miben segít?" card grid ---------- */
+  #segit {
+    border-top: 1px solid var(--line);
+    padding: 48px 0;
+  }
+
   ul.plain {
     margin: 0;
     padding: 0;
     list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   ul.plain li {
-    padding: 10px 0 10px 30px;
-    position: relative;
-    border-bottom: 1px dashed rgba(76, 122, 61, 0.3);
+    background: #FFFFFF;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--yellow);
+    border-radius: 6px;
+    padding: 18px 22px;
   }
 
-  ul.plain li:last-child { border-bottom: none; }
+  ul.plain li:nth-child(4n+2) { border-left-color: var(--blue); }
+  ul.plain li:nth-child(4n+3) { border-left-color: var(--red); }
+  ul.plain li:nth-child(4n+4) { border-left-color: var(--green); }
 
-  ul.plain li::before {
-    content: "—";
-    position: absolute;
-    left: 0;
-    color: var(--yellow);
-    font-weight: 600;
+  @media (min-width: 640px) {
+    ul.plain { grid-template-columns: repeat(2, 1fr); }
   }
+
+  @media (min-width: 1000px) {
+    ul.plain { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ---------- "Mi nem ez" ---------- */
+  #mi-nem {
+    border-top: 1px solid var(--line);
+    padding: 48px 0 56px;
+  }
+
+  #mi-nem h2 { text-align: center; }
 
   .not-box {
     background: rgba(216, 52, 42, 0.05);
     border-left: 3px solid var(--red);
-    padding: 18px 22px;
     border-radius: 2px;
+    padding: 22px 26px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 900px) {
+    .not-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 22px;
+      padding: 28px 36px;
+    }
+
+    .not-box .not-icon {
+      flex: 0 0 auto;
+      font-size: 30px;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .not-box .not-copy p { max-width: 62ch; }
   }
 
   .not-box p { margin: 0 0 8px; }
@@ -198,23 +325,6 @@
     font-weight: 600;
     color: var(--red);
   }
-
-  /* ---------- second hero: "Kinek szól?" with wallpaper ---------- */
-  section#kinek {
-    position: relative;
-    padding: 64px 0;
-    background-image:
-      linear-gradient(180deg, rgba(251, 248, 242, 0.88) 0%, rgba(251, 248, 242, 0.94) 100%),
-      url("/old.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  section#kinek h2,
-  section#kinek p {
-    position: relative;
-  }
 </style>
 </head>
 <body>
@@ -222,10 +332,12 @@
 <div class="border-strip" role="presentation"></div>
 
 <header class="hero">
-  <div class="wrap">
-    <p class="eyebrow">Telefonos tanácsadó szolgálat</p>
-    <img class="logo-mark" src="/huba.png" alt="Huba">
-    <p class="tagline">Megbízható válaszok egy hívás távolságra.</p>
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <p class="eyebrow">Telefonos tanácsadó szolgálat</p>
+      <img class="logo-mark" src="/huba.png" alt="Huba">
+      <p class="tagline">Megbízható válaszok egy hívás távolságra.</p>
+    </div>
 
     <div class="call-box">
       <span class="label">Elérhető</span>
@@ -238,15 +350,17 @@
 <main>
   <div class="wrap">
 
-    <section id="mi-ez">
-      <h2>Mi ez?</h2>
-      <p>Huba egy telefonos tanácsadó szolgálat, amely azonnali, érthető válaszokat ad a mindennapi kérdésekre. Nincs szükség internetkapcsolatra, alkalmazásra vagy regisztrációra — mindössze egy hívásra, anyanyelven, székely hangvétellel.</p>
-    </section>
+    <div class="intro-grid">
+      <section id="mi-ez">
+        <h2>Mi ez?</h2>
+        <p>Huba egy telefonos tanácsadó szolgálat, amely azonnali, érthető válaszokat ad a mindennapi kérdésekre. Nincs szükség internetkapcsolatra, alkalmazásra vagy regisztrációra — mindössze egy hívásra, anyanyelven, székely hangvétellel.</p>
+      </section>
 
-    <section id="kinek">
-      <h2>Kinek szól?</h2>
-      <p>Elsősorban azoknak, akik nem használnak internetet — időseknek, és mindazoknak, akik számára egyszerűbb és természetesebb egy kérdést kimondani, mint azt keresőbe gépelni.</p>
-    </section>
+      <section id="kinek">
+        <h2>Kinek szól?</h2>
+        <p>Elsősorban azoknak, akik nem használnak internetet — időseknek, és mindazoknak, akik számára egyszerűbb és természetesebb egy kérdést kimondani, mint azt keresőbe gépelni.</p>
+      </section>
+    </div>
 
     <section id="segit">
       <h2>Miben segít?</h2>
@@ -262,9 +376,12 @@
     <section id="mi-nem">
       <h2>Mi nem ez</h2>
       <div class="not-box">
-        <p>Huba nem helyettesíti a családot vagy a közösséget — gyakran éppen azt javasolja, hogy a hívó forduljon hozzájuk is.</p>
-        <p>Nem ad orvosi diagnózist és nem lát el jogi képviseletet — ezekben az esetekben minden alkalommal szakemberhez irányít.</p>
-        <p class="crisis">Nem lelki válsághelyzeti szolgálat. Nehéz lelkiállapot esetén kérjük, hívja a <strong>Lelkisegély telefonszolgálatot: 116-123</strong> (díjmentes, a nap 24 órájában elérhető).</p>
+        <div class="not-icon" aria-hidden="true">✦</div>
+        <div class="not-copy">
+          <p>Huba nem helyettesíti a családot vagy a közösséget — gyakran éppen azt javasolja, hogy a hívó forduljon hozzájuk is.</p>
+          <p>Nem ad orvosi diagnózist és nem lát el jogi képviseletet — ezekben az esetekben minden alkalommal szakemberhez irányít.</p>
+          <p class="crisis">Nem lelki válsághelyzeti szolgálat. Nehéz lelkiállapot esetén kérjük, hívja a <strong>Lelkisegély telefonszolgálatot: 116-123</strong> (díjmentes, a nap 24 órájában elérhető).</p>
+        </div>
       </div>
     </section>
 
