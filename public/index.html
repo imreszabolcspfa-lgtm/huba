@@ -176,61 +176,50 @@
 
   section p:last-child { margin-bottom: 0; }
 
-  /* intro pair: "Mi ez?" + "Kinek szól?" as a two-up layout on wide screens */
-  .intro-grid {
+  /* "Mi ez?" — short lead statement under the hero */
+  #mi-ez {
     border-top: 1px solid var(--line);
     padding: 48px 0;
+    text-align: center;
+  }
+
+  #mi-ez h2 { text-align: center; }
+
+  #mi-ez p {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(19px, 2vw, 23px);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* "Kinek szól?" — full photo alongside the text, no crop, no tint */
+  #kinek {
+    border-top: 1px solid var(--line);
+    padding: 48px 0;
+  }
+
+  .kinek-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 28px;
+    align-items: center;
   }
 
-  .intro-grid section {
-    padding: 32px 0;
-    border-top: 1px solid var(--line);
+  .kinek-img img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
   }
 
-  .intro-grid section:first-child { border-top: none; padding-top: 0; }
-  .intro-grid section:last-child { padding-bottom: 0; }
-
-  #kinek {
-    position: relative;
-    border-radius: 6px;
-    background-image:
-      linear-gradient(180deg, rgba(251, 248, 242, 0.88) 0%, rgba(251, 248, 242, 0.94) 100%),
-      url("/old.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  @media (min-width: 900px) {
-    .intro-grid {
-      grid-template-columns: 5fr 7fr;
-      gap: 48px;
+  @media (min-width: 800px) {
+    .kinek-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
     }
 
-    .intro-grid section,
-    .intro-grid section:first-child,
-    .intro-grid section:last-child {
-      border-top: none;
-      padding: 0;
-    }
-
-    #mi-ez {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    #kinek {
-      padding: 40px 36px !important;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    #kinek p { max-width: 42ch; }
+    .kinek-text p { max-width: 42ch; }
   }
 
   /* ---------- "Miben segít?" card grid ---------- */
@@ -350,17 +339,22 @@
 <main>
   <div class="wrap">
 
-    <div class="intro-grid">
-      <section id="mi-ez">
-        <h2>Mi ez?</h2>
-        <p>Huba egy telefonos tanácsadó szolgálat, amely azonnali, érthető válaszokat ad a mindennapi kérdésekre. Nincs szükség internetkapcsolatra, alkalmazásra vagy regisztrációra — mindössze egy hívásra, anyanyelven, székely hangvétellel.</p>
-      </section>
+    <section id="mi-ez">
+      <h2>Mi ez?</h2>
+      <p>Huba egy telefonos tanácsadó szolgálat, amely azonnali, érthető válaszokat ad a mindennapi kérdésekre. Nincs szükség internetkapcsolatra, alkalmazásra vagy regisztrációra — mindössze egy hívásra, anyanyelven, székely hangvétellel.</p>
+    </section>
 
-      <section id="kinek">
-        <h2>Kinek szól?</h2>
-        <p>Elsősorban azoknak, akik nem használnak internetet — időseknek, és mindazoknak, akik számára egyszerűbb és természetesebb egy kérdést kimondani, mint azt keresőbe gépelni.</p>
-      </section>
-    </div>
+    <section id="kinek">
+      <div class="kinek-grid">
+        <div class="kinek-img">
+          <img src="/old.png" alt="Idős házaspár telefonál egymással">
+        </div>
+        <div class="kinek-text">
+          <h2>Kinek szól?</h2>
+          <p>Elsősorban azoknak, akik nem használnak internetet — időseknek, és mindazoknak, akik számára egyszerűbb és természetesebb egy kérdést kimondani, mint azt keresőbe gépelni.</p>
+        </div>
+      </div>
+    </section>
 
     <section id="segit">
       <h2>Miben segít?</h2>
