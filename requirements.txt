@@ -1,0 +1,8 @@
+flask
+flask-sock
+google-genai
+deepgram-sdk
+edge-tts
+pydub
+# audioop was removed from the standard library in Python 3.13
+audioop-lts; python_version >= "3.13"
