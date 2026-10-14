@@ -14,8 +14,7 @@ from flask import Flask, Response, request
 from flask_sock import Sock
 from simple_websocket import ConnectionClosed
 import audioop
-from google import genai
-from google.genai import types as genai_types
+import anthropic
 import edge_tts
 from pydub import AudioSegment
 from deepgram import DeepgramClient
@@ -64,41 +63,36 @@ if not DEEPGRAM_API_KEY:
     )
 deepgram_client = DeepgramClient(api_key=DEEPGRAM_API_KEY)
 
-# Gemini generates Huba's actual reply text from the transcript. Requires
-# GEMINI_API_KEY to be set as an environment variable -- never hardcode
+# Claude generates Huba's actual reply text from the transcript. Requires
+# ANTHROPIC_API_KEY to be set as an environment variable -- never hardcode
 # the key directly in the file.
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+if not ANTHROPIC_API_KEY:
     raise RuntimeError(
-        "GEMINI_API_KEY environment variable is not set. "
-        "Set it before running, e.g. in PowerShell: $env:GEMINI_API_KEY = \"your-key-here\""
+        "ANTHROPIC_API_KEY environment variable is not set. "
+        "Set it before running, e.g. in PowerShell: $env:ANTHROPIC_API_KEY = \"your-key-here\""
     )
-gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+claude_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-GEMINI_MODEL_NAME = "gemini-3.5-flash"
-# google_search enables real-time Google Search grounding: for queries like
-# a company's phone number or address, Gemini can now issue an actual
-# search and answer from real results instead of guessing from stale
-# training data. Trade-off: adds real latency on exactly the queries that
-# trigger a search (not every turn) -- if that's noticeable, lean on the
-# existing filler-phrase system to cover it rather than removing this.
-#
-# Note: this requires the current `google-genai` SDK (import as
-# `from google import genai`), not the deprecated `google-generativeai`
-# package. That older SDK's tool builder only accepts the literal string
-# "code_execution" (or the older, now-unsupported-for-this-model
-# "google_search_retrieval") as a bare string -- it has no object-based way
-# to express the newer "google_search" tool at all.
-GEMINI_CONFIG = genai_types.GenerateContentConfig(
-    system_instruction=(
-        "A neved Huba, egy telefonos hangalapú asszisztens vagy. "
-        "Mindig magyarul válaszolj, természetesen és tömören -- "
-        "ahogy egy telefonbeszélgetésben beszélnénk, nem írásban. "
-        "Ne legyél túl hosszú: egy-két mondat elég."
-    ),
-    tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
+# Haiku is the fast tier: a phone call needs the first sentence quickly.
+# effort "low" keeps its (adaptive) thinking short for the same reason.
+CLAUDE_MODEL_NAME = "claude-haiku-5-5"
+CLAUDE_SYSTEM_PROMPT = (
+    "A neved Huba, egy telefonos hangalapú asszisztens vagy. "
+    "Mindig magyarul válaszolj, természetesen és tömören -- "
+    "ahogy egy telefonbeszélgetésben beszélnénk, nem írásban. "
+    "Ne legyél túl hosszú: egy-két mondat elég. "
+    "Ne használj felsorolást, csillagot vagy más formázást: a válaszodat "
+    "hangosan fogják felolvasni."
 )
-print(f">>> Gemini client ready, model '{GEMINI_MODEL_NAME}'.")
+# Server-side web search: for queries like a company's phone number or
+# address Claude can search and answer from real results instead of
+# guessing. Adds latency only on turns that actually search. If the API
+# ever rejects the tool for this model, we drop it and keep answering.
+CLAUDE_TOOLS = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 2}]
+_web_search_enabled = True
+CLAUDE_FALLBACK_REPLY = "Ezt sajnos most nem tudom megmondani."
+print(f">>> Claude client ready, model '{CLAUDE_MODEL_NAME}'.")
 
 # edge-tts (Microsoft's free neural TTS, no API key) gives us a named male
 # Hungarian voice, unlike gTTS which only has one voice per language.
@@ -117,44 +111,81 @@ EDGE_TTS_PITCH = "-8Hz"  # negative = lower
 SENTENCE_END_RE = re.compile(r'[.!?]+(\s|$)')
 
 
-def stream_reply_sentences(chat_session, transcript: str):
-    """Stream Gemini's reply and yield each sentence as soon as it's
+def stream_reply_sentences(history: list, transcript: str):
+    """Stream Claude's reply and yield each sentence as soon as it's
     complete, instead of waiting for the whole (possibly multi-sentence)
     reply to finish generating. This lets us start synthesizing and
-    speaking the first sentence while Gemini is still generating the rest,
+    speaking the first sentence while Claude is still generating the rest,
     instead of doing the two steps fully sequentially.
 
-    Takes a chat_session (not the bare model) so each call adds to a
-    running conversation history -- without this, every reply was
-    generated with zero memory of anything said earlier in the call."""
+    `history` is the running message list for this call, mutated in place
+    (user turn, then the assistant's full content blocks) -- without it,
+    every reply would be generated with zero memory of anything said
+    earlier in the call. The list stays append-only, as required for the
+    thinking blocks it carries."""
+    global _web_search_enabled
+    history.append({"role": "user", "content": transcript})
     buffer = ""
-    response = chat_session.send_message_stream(transcript)
-    for chunk in response:
-        buffer += getattr(chunk, "text", "") or ""
-        while True:
-            match = SENTENCE_END_RE.search(buffer)
-            if not match:
-                break
-            sentence = buffer[:match.end()].strip()
-            buffer = buffer[match.end():]
-            if sentence:
-                yield sentence
+    spoke = False
+
+    for _ in range(3):  # extra rounds only if a web search pauses the turn
+        params = dict(
+            model=CLAUDE_MODEL_NAME,
+            max_tokens=400,
+            system=CLAUDE_SYSTEM_PROMPT,
+            output_config={"effort": "low"},
+            messages=history,
+        )
+        if _web_search_enabled:
+            params["tools"] = CLAUDE_TOOLS
+        try:
+            with claude_client.messages.stream(**params) as stream:
+                for event in stream:
+                    if event.type == "content_block_start" and event.content_block.type == "text":
+                        if buffer and not buffer.endswith(" "):
+                            buffer += " "  # text before/after a search is separate blocks
+                    elif event.type == "content_block_delta" and event.delta.type == "text_delta":
+                        buffer += event.delta.text
+                        while True:
+                            match = SENTENCE_END_RE.search(buffer)
+                            if not match:
+                                break
+                            sentence = buffer[:match.end()].strip()
+                            buffer = buffer[match.end():]
+                            if sentence:
+                                spoke = True
+                                yield sentence
+                final = stream.get_final_message()
+        except anthropic.BadRequestError as e:
+            if _web_search_enabled and not spoke:
+                print(f">>> Claude rejected the web search tool ({e}); continuing without it.")
+                _web_search_enabled = False
+                continue
+            raise
+        history.append({"role": "assistant", "content": final.content})
+        if final.stop_reason != "pause_turn":
+            break
+
     remainder = buffer.strip()
     if remainder:
+        spoke = True
         yield remainder
+    if not spoke:
+        # Empty reply (e.g. a safety refusal): say something instead of silence.
+        yield CLAUDE_FALLBACK_REPLY
 
 
 _STREAM_DONE = object()
 
 
-def start_reply_audio_stream(chat_session, transcript: str):
-    """Start generating Huba's reply (Gemini + per-sentence TTS) in a
+def start_reply_audio_stream(chat_session: list, transcript: str):
+    """Start generating Huba's reply (Claude + per-sentence TTS) in a
     background thread RIGHT NOW, and return an iterator to consume the
     results as they arrive.
 
     This is a plain function, not a generator -- unlike a generator, its
     body (including starting the thread) runs immediately when called,
-    not lazily on first iteration. That matters here: we want Gemini/TTS
+    not lazily on first iteration. That matters here: we want Claude/TTS
     working in the background *while* a filler phrase plays, not only
     starting once we begin pulling sentences out."""
     q = queue.Queue(maxsize=1)
@@ -205,7 +236,7 @@ def synthesize_speech(text: str) -> bytes:
 
 # Filler phrases: acknowledge the caller immediately (near-zero delay, since
 # these are pre-synthesized once at startup, not generated per-turn) while
-# Gemini + TTS work on the real reply in the background. Masks the
+# Claude + TTS work on the real reply in the background. Masks the
 # unavoidable network latency instead of making the caller sit in silence.
 FILLER_PHRASES = [
     "Hamarosan mondom.",
@@ -325,7 +356,7 @@ def media_stream(ws):
     # One chat session per call, reused for every turn -- this is what
     # gives Huba actual memory of the conversation instead of treating
     # each reply as a fresh, context-free request.
-    chat_session = gemini_client.chats.create(model=GEMINI_MODEL_NAME, config=GEMINI_CONFIG)
+    chat_session = []
 
     # Accumulates Deepgram's finalized transcript pieces for the utterance
     # currently in progress. Deepgram sends these back asynchronously (via
@@ -458,7 +489,7 @@ def media_stream(ws):
                             print(f">>> Deepgram heard: \"{text}\"  ({t1 - t0:.2f}s)")
 
                             if text:
-                                # Start Gemini + TTS working on the real
+                                # Start Claude + TTS working on the real
                                 # reply RIGHT NOW, in the background --
                                 # before we've even played anything. Then
                                 # immediately play a quick filler phrase
@@ -495,7 +526,7 @@ def media_stream(ws):
                                 t4 = time.perf_counter()
                                 print(f">>> Done speaking. (total turnaround {t4 - t0:.2f}s)")
                             else:
-                                print(">>> (empty transcript, skipping Gemini call)")
+                                print(">>> (empty transcript, skipping Claude call)")
 
                             audio_buffer = bytearray()
                             speaking = False

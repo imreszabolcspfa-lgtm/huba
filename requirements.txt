@@ -1,6 +1,6 @@
 flask
 flask-sock
-google-genai
+anthropic
 deepgram-sdk
 edge-tts
 pydub

@@ -9,5 +9,5 @@ services:
     envVars:
       - key: DEEPGRAM_API_KEY
         sync: false
-      - key: GEMINI_API_KEY
+      - key: ANTHROPIC_API_KEY
         sync: false
