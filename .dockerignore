@@ -1,0 +1,5 @@
+.venv/
+public/
+debug_audio/
+.git/
+*.pdf

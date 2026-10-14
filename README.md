@@ -38,3 +38,13 @@ Expose the server (e.g. with ngrok) and set the Twilio number's "A call comes in
 
 - Keys are read from environment variables only; never commit credentials (`*.json` is git-ignored).
 - The server writes caller audio chunks to `debug_audio/`. They are not deleted automatically — see the compliance roadmap before taking real callers.
+
+## Deploying (always-on)
+
+A phone number needs a server that is always reachable, not a laptop behind ngrok.
+
+1. Create a Render account, choose **New → Blueprint**, and select this repo (`render.yaml` and the `Dockerfile` do the rest). Use a paid instance — free ones sleep when idle.
+2. In the service's **Environment** tab set `DEEPGRAM_API_KEY` and `GEMINI_API_KEY`.
+3. When the deploy is live (`https://<name>.onrender.com/health` returns `ok`), set the Twilio number's **A call comes in** webhook to `https://<name>.onrender.com/voice` (HTTP POST).
+
+Any host that runs a Docker container and supports websockets (Fly.io, Railway) works the same way.

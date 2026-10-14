@@ -308,6 +308,11 @@ def voice():
     return Response(twiml, mimetype="text/xml")
 
 
+@app.route("/health")
+def health():
+    return "ok"
+
+
 @sock.route("/media-stream")
 def media_stream(ws):
     print(">>> Media stream connected")
@@ -503,4 +508,5 @@ def media_stream(ws):
 
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    # Local run only; in production gunicorn serves `huba_server:app` (see Dockerfile).
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

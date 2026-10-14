@@ -1,0 +1,13 @@
+# Render Blueprint. Use a paid instance type: the free tier sleeps after
+# 15 minutes idle, so the first caller after a quiet spell would get an error.
+services:
+  - type: web
+    name: huba-voice
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DEEPGRAM_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
