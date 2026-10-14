@@ -18,7 +18,7 @@ Landing page: https://huba-landing.vercel.app/
 1. Twilio receives the call and POSTs to `/voice`, which answers with TwiML opening a websocket to `/media-stream`.
 2. Caller audio (8 kHz mulaw) is streamed to Deepgram (`nova-3`) for live transcription.
 3. About 1 s of silence ends the caller's turn.
-4. Claude (Haiku 5.5) writes a short Hungarian reply (web search tool, conversation memory for the whole call).
+4. Gemini writes a short Hungarian reply (Google Search grounding, conversation memory for the whole call).
 5. edge-tts (`hu-HU-TamasNeural`) speaks it back sentence by sentence while the rest is still generating; short filler phrases cover the wait.
 
 ## Running locally
@@ -28,7 +28,7 @@ Python 3.13 needs `audioop-lts` (included in `requirements.txt`); `ffmpeg` must 
 ```powershell
 pip install -r requirements.txt
 $env:DEEPGRAM_API_KEY = "..."
-$env:ANTHROPIC_API_KEY = "..."
+$env:GEMINI_API_KEY = "..."
 python huba_server.py
 ```
 
@@ -44,7 +44,7 @@ Expose the server (e.g. with ngrok) and set the Twilio number's "A call comes in
 A phone number needs a server that is always reachable, not a laptop behind ngrok.
 
 1. Create a Render account, choose **New → Blueprint**, and select this repo (`render.yaml` and the `Dockerfile` do the rest). Use a paid instance — free ones sleep when idle.
-2. In the service's **Environment** tab set `DEEPGRAM_API_KEY` and `ANTHROPIC_API_KEY`.
+2. In the service's **Environment** tab set `DEEPGRAM_API_KEY` and `GEMINI_API_KEY`.
 3. When the deploy is live (`https://<name>.onrender.com/health` returns `ok`), set the Twilio number's **A call comes in** webhook to `https://<name>.onrender.com/voice` (HTTP POST).
 
 Any host that runs a Docker container and supports websockets (Fly.io, Railway) works the same way.
