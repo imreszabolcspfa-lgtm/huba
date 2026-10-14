@@ -165,6 +165,11 @@ def start_reply_audio_stream(chat_session, transcript: str):
                 t_start = time.perf_counter()
                 mulaw_chunk = synthesize_speech(sentence)
                 q.put((sentence, mulaw_chunk, time.perf_counter() - t_start))
+        except Exception as e:
+            # Gemini quota/billing/network error: tell the caller instead
+            # of leaving silence. The details go to the server log.
+            print(f">>> Reply generation failed: {type(e).__name__}: {e}")
+            q.put((ERROR_REPLY_TEXT, ERROR_REPLY_AUDIO, 0.0))
         finally:
             q.put(_STREAM_DONE)
 
@@ -228,6 +233,11 @@ print(">>> Pre-synthesizing filler phrases...")
 FILLER_AUDIO = [(phrase, synthesize_speech(phrase)) for phrase in FILLER_PHRASES]
 FILLER_SHORT_AUDIO = (FILLER_SHORT_PHRASE, synthesize_speech(FILLER_SHORT_PHRASE))
 print(f">>> {len(FILLER_AUDIO)} filler phrases ready (plus the short '{FILLER_SHORT_PHRASE}' fallback).")
+
+
+# Spoken when generating a reply fails (quota, billing, network).
+ERROR_REPLY_TEXT = "Elnézést, most nem tudok válaszolni. Kérlek, hívj újra később."
+ERROR_REPLY_AUDIO = synthesize_speech(ERROR_REPLY_TEXT)
 
 
 def pick_filler_audio():
