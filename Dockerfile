@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY huba_server.py .
+COPY huba_server.py keyterms.txt glossary.txt ./
 
 # One worker (call state lives in-process), many threads (one per live call).
 CMD gunicorn -w 1 -k gthread --threads 50 --timeout 120 -b 0.0.0.0:${PORT:-5000} huba_server:app

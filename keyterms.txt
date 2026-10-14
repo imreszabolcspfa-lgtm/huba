@@ -1,0 +1,73 @@
+# Deepgram "keyterm" list: the words the phone line (8 kHz) most often
+# mishears. HARD LIMIT: 100 terms (~500 tokens) -- extra terms are ignored,
+# so this file holds only the most valuable ones. The big vocabulary (every
+# village, dialect words, Romanian terms) lives in glossary.txt, which the
+# AI reads and uses to correct what Deepgram misheard.
+# One term per line, '#' = comment. Proper nouns capitalised, others lowercase.
+
+# Name
+Huba
+
+# Towns that are easily misheard (Hungarian names)
+Székelyudvarhely
+Csíkszereda
+Sepsiszentgyörgy
+Gyergyószentmiklós
+Kézdivásárhely
+Székelykeresztúr
+Marosvásárhely
+Kolozsvár
+Nagyvárad
+Szatmárnémeti
+Csíkszentmárton
+Gyimesbükk
+Tusnádfürdő
+Szováta
+Parajd
+Korond
+Szentegyháza
+Kovászna
+Székelyföld
+Erdély
+
+# Romanian institutions and documents, as callers say them
+ANAF
+CAS
+CNP
+buletin
+carte de identitate
+adeverință
+primărie
+Poșta Română
+Enel
+E.ON
+Digi
+Orange
+Telekom
+Vodafone
+
+# Local words callers use (standard meaning in glossary.txt)
+pityóka
+málé
+szarma
+mici
+kend
+ángyó
+bátyám
+
+# Household, phones, apps
+hűtőszekrény
+mosógép
+kazán
+távirányító
+okostelefon
+router
+WiFi
+WhatsApp
+
+# Paperwork and money
+nyugdíj
+adóbevallás
+nyomtatvány
+anyakönyvi kivonat
+bankszámla

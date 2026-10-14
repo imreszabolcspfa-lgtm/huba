@@ -1,0 +1,123 @@
+# Huba helyi szótár -- az AI ebből tanulja meg, mit jelenthet, amit a hívó mond.
+# A beszédfelismerő sokszor eltéveszti a helyneveket és a román szavakat; ha egy
+# furcsa szó hasonlít az alábbiak valamelyikére, valószínűleg arra gondolt.
+# Szerkeszthető: soronként egy bejegyzés, a '#' kezdetű sorok megjegyzések.
+
+[Városok: magyar név = román név]
+Székelyudvarhely = Odorheiu Secuiesc
+Csíkszereda = Miercurea Ciuc
+Sepsiszentgyörgy = Sfântu Gheorghe
+Gyergyószentmiklós = Gheorgheni
+Kézdivásárhely = Târgu Secuiesc
+Székelykeresztúr = Cristuru Secuiesc
+Marosvásárhely = Târgu Mureș
+Szováta = Sovata
+Parajd = Praid
+Korond = Corund
+Szentegyháza = Vlăhița
+Balánbánya = Bălan
+Tusnádfürdő = Băile Tușnad
+Kovászna = Covasna
+Barót = Baraolt
+Bodzaforduló = Întorsura Buzăului
+Maroshévíz = Toplița
+Szászrégen = Reghin
+Segesvár = Sighișoara
+Medgyes = Mediaș
+Nagyszeben = Sibiu
+Brassó = Brașov
+Kolozsvár = Cluj-Napoca
+Nagyvárad = Oradea
+Szatmárnémeti = Satu Mare
+Nagykároly = Carei
+Nagybánya = Baia Mare
+Zilah = Zalău
+Beszterce = Bistrița
+Gyulafehérvár = Alba Iulia
+Temesvár = Timișoara
+Arad = Arad
+Székelyhíd = Săcueni
+Bánffyhunyad = Huedin
+Máramarossziget = Sighetu Marmației
+Dés = Dej
+Torda = Turda
+Szamosújvár = Gherla
+
+[Tájegységek]
+Székelyföld = a székelyek földje (Hargita, Kovászna, Maros megye egy része)
+Udvarhelyszék, Csíkszék (Alcsík, Felcsík), Gyergyó, Háromszék, Marosszék, Sóvidék, Kászon, Gyimes, Barcaság, Kalotaszeg, Mezőség, Szilágyság, Partium, Bánság, Máramaros, Erdély = Transilvania
+
+[Falvak és kisebb települések, ahol a hívók élhetnek]
+Oroszhegy, Bögöz, Szentábrahám, Székelyszentlélek, Zetelaka, Homoródszentmárton, Homoródalmás, Lövéte, Máréfalva, Atyha, Fenyéd, Siklód, Székelyderzs, Kányád, Székelyvarság, Kisgalambfalva, Farkaslaka
+Csíkszentmárton, Csíkszentdomokos, Csíkszentkirály, Csíkrákos, Csíkmadaras, Csíkdelne, Csíkzsögöd, Csíkcsicsó, Csíkszentsimon, Csíkkarcfalva, Csíkdánfalva, Csíkbánkfalva, Csíkszentgyörgy, Csíkszenttamás, Csíkjenőfalva, Madéfalva, Gyimesbükk, Gyimesközéplok, Gyimesfelsőlok, Borszék, Kászonújfalu, Kászonaltíz
+Gyergyóalfalu, Gyergyóditró, Gyergyószárhegy, Gyergyócsomafalva, Gyergyóremete, Gyergyóújfalu, Tölgyes, Békás
+Nyárádszereda, Backamadaras, Mikháza, Sófalva, Marosszentgyörgy, Marosszentkirály, Nyárádszentlászló, Erdőszentgyörgy, Gernyeszeg, Nagyernye
+Gidófalva, Illyefalva, Árkos, Uzon, Sepsibükszád, Zágon, Mikóújfalu, Csernáton, Réty, Bereck, Dálnok, Kökös, Torja, Bodok, Szemerja, Ozsdola, Esztelnek, Kézdiszentlélek, Kézdiszárazpatak, Lemhény, Nagyajta, Kisajta, Zabola, Kálnok, Bölön
+Körösfő, Kalotaszentkirály, Gyalu, Szék, Kide, Magyarlápos, Kolozsborsa, Mezőkölpény, Mezőméhes
+
+[Székely és erdélyi szavak = mit jelentenek köznyelven]
+kend, kendtek = ön, maga, önök (régies tiszteletteljes megszólítás)
+ángyó, ángyi, néne, nénike = idős asszony megszólítása
+bátyám, bátyó, bácsi = idősebb férfi megszólítása
+no, nó = na, hát
+ugyi = ugye
+mán, má = már
+hun = hol
+pityóka = krumpli, burgonya
+málé, puliszka = kukoricalisztből főzött étel (románul mămăligă)
+szarma = töltött káposzta (románul sarmale)
+mici = grillezett fűszeres húsgombóc (románul mititei)
+tokány = pörköltszerű húsétel
+kőrözött = juhtúrós vagy túrós kenyérre való kenőcs
+tepertő, szalonna, hurka, kolbász = disznótoros finomságok
+házipálinka = otthon főzött gyümölcspálinka
+kürtőskalács = hengeren sütött süteményféle
+túrós csusza = túrós tésztaétel
+
+[Román szavak és intézmények, ahogy a hívók mondják]
+buletin = személyi igazolvány (a "carte de identitate" régi neve)
+carte de identitate = személyi igazolvány
+CNP = személyi szám (13 jegyű)
+primărie, primăria = polgármesteri hivatal
+primar = polgármester
+ANAF = az adóhivatal
+CAS, Casa de Asigurări de Sănătate = egészségbiztosítási pénztár
+Casa de Pensii = nyugdíjpénztár
+pensie = nyugdíj
+adeverință = igazolás
+cerere = kérvény, kérelem
+dosar = ügyirat, dosszié
+ghișeu = ügyfélablak, ablak
+ștampilă = pecsét
+taxă = illeték, díj
+impozit = adó
+factură = számla
+rată = részlet, törlesztő
+chirie = lakbér
+întreținere = közös költség
+contor = mérőóra
+curent = áram
+gaz = gáz
+medic de familie = háziorvos
+spital = kórház
+farmacie = gyógyszertár
+Poșta Română = a román posta
+carte funciară, extras de carte funciară = telekkönyv, tulajdoni lap
+permis de conducere = jogosítvány
+talon = forgalmi engedély
+RCA = kötelező autóbiztosítás
+ITP = műszaki vizsga
+rovinietă = autópálya-matrica
+pașaport = útlevél
+apostilă = hitelesítés külföldi használatra
+prefectură = a megyei prefektusi hivatal
+consiliul județean = megyei tanács
+lei, bani = a román pénz, 1 leu = 100 bani
+
+[Szolgáltatók és boltok, amelyek előfordulnak]
+Enel, E.ON, Engie, Hidroelectrica = áram- és gázszolgáltatók
+Digi (RCS&RDS), Orange, Vodafone, Telekom = telefon- és internetszolgáltatók
+Kaufland, Lidl, Profi, Mega Image, Penny, Carrefour = élelmiszerboltok
+Dedeman, Hornbach, Leroy Merlin = barkácsáruházak
+eMAG, Altex, Flanco = elektronikai boltok
+Dacia, Renault, Volkswagen, Skoda = gyakori autómárkák

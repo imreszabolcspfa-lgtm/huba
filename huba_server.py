@@ -64,6 +64,29 @@ if not DEEPGRAM_API_KEY:
     )
 deepgram_client = DeepgramClient(api_key=DEEPGRAM_API_KEY)
 
+
+def load_keyterms(path: str = "keyterms.txt") -> list:
+    """Read the vocabulary Deepgram should be biased towards. Each line is
+    one term (or a multi-word phrase); blank lines and '#' comments are
+    skipped. Nova-3 'keyterm prompting' lifts recognition of exactly these
+    words -- appliance names, utilities, Romanian office terms, places --
+    which a phone line (8 kHz) otherwise tends to mishear."""
+    full = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
+    try:
+        with open(full, encoding="utf-8") as f:
+            terms = [ln.strip() for ln in f if ln.strip() and not ln.lstrip().startswith("#")]
+    except FileNotFoundError:
+        print(f">>> {path} not found, listening without keyterms.")
+        return []
+    if len(terms) > 100:
+        print(f">>> {len(terms)} keyterms is over Deepgram's limit of 100; using the first 100.")
+        terms = terms[:100]
+    return terms
+
+
+DEEPGRAM_KEYTERMS = load_keyterms()
+print(f">>> Loaded {len(DEEPGRAM_KEYTERMS)} Deepgram keyterms.")
+
 # Gemini generates Huba's actual reply text from the transcript. Requires
 # GEMINI_API_KEY to be set as an environment variable -- never hardcode
 # the key directly in the file.
@@ -83,6 +106,10 @@ Hangnem: mindig magyarul válaszolj, melegen, közvetlenül, tegezve, kicsit sz�
 
 Miben segítesz: meghibásodott eszközök (lehetséges okok és teendők), hivatalos iratok és nyomtatványok értelmezése, főzési és tartósítási tanácsok, készülékek és telefonok beállítása, és bármilyen hétköznapi kérdés.
 
+A hívók többsége Romániában, Erdélyben, főként Székelyföldön és más magyarlakta vidékeken él. Ismerd a helyi valóságot: a pénz a lej és a bani, a segélyhívó a 112, az iratok, hivatalok és szolgáltatók román nevűek (buletin, CNP, ANAF, CAS, primăria stb.), és sok magyar ember a román szavakat is beleszövi a beszédébe. Értsd meg az erdélyi és székely nyelvhasználatot (például kend, no, pityóka, málé, ángyó), de te közérthető, tiszta magyarsággal válaszolj. Román intézményt vagy iratot az első említéskor mondd mindkét néven, például "az ANAF, vagyis az adóhivatal" vagy "a buletin, azaz a személyi igazolvány". Ismerd a helységneveket magyarul és románul is, és ne keverd össze a hasonló nevű falvakat; ha a hívó települését nem ismered fel biztosan, kérdezd vissza.
+
+A hívó szavait automatikus beszédfelismerő írja át szöveggé telefonvonalon keresztül, ezért a szövegben lehetnek elírások, félrehallott szavak vagy hiányzó ékezetek. Ne ragadj le a furcsa szavaknál: a hangzás és a beszélgetés összefüggése alapján értelmezd, mit akarhatott mondani. Ha egy fontos szó vagy szám bizonytalan (például név, telefonszám, összeg, készüléktípus), kérdezz vissza röviden, hogy jól értetted-e.
+
 Hogyan válaszolj:
 - Ez egy telefonbeszélgetés: a hívó nem tud visszalapozni. Beszélt nyelven fogalmazz, rövid, egyszerű mondatokban. Soha ne használj felsorolásjelet, számozást, csillagot, zárójeles magyarázatot, linket vagy bármilyen írásjeles formázást, mert hangosan felolvassák.
 - Legyél érdemi és konkrét. Egy egyszerű kérdésre elég két-három mondat, de ha a kérdés összetettebb (hiba elhárítása, nyomtatvány kitöltése, recept, beállítás), adj valódi, használható útmutatást: mondd el a lényeget, aztán lépésről lépésre, egyszerre egy-két lépést, és kérdezd meg, hogy sikerült-e, mielőtt továbbmész.
@@ -97,6 +124,28 @@ Mi nem vagy, és mit teszel ilyenkor:
 - Nem helyettesíted a családot vagy a közösséget; ha illik, bátorítsd a hívót, hogy ők is segítsenek.
 - Ha valaki pénzt, jelszót, bankkártyaadatot vagy személyes azonosítót kérne vagy adna meg, figyelmeztesd, hogy ilyet telefonon senkinek se mondjon el.
 - Ha a hívó megkérdezi, tudatosan mondd meg, hogy mesterséges intelligencia vagy."""
+
+
+def load_glossary(path: str = "glossary.txt") -> str:
+    """Read the local-vocabulary glossary (village names, Székely words,
+    Romanian terms) and return it as a prompt section. Unlike Deepgram's
+    100-term keyterm limit, this can be large: the AI uses it to work out
+    what a mis-transcribed word probably was."""
+    full = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
+    try:
+        with open(full, encoding="utf-8") as f:
+            lines = [ln.rstrip() for ln in f if ln.strip() and not ln.lstrip().startswith("#")]
+    except FileNotFoundError:
+        print(f">>> {path} not found, running without the local glossary.")
+        return ""
+    return (
+        "\n\nHelyi szótár. Ha a hívó szavai közt furcsa, félrehallott szó van, "
+        "először ebben keresd a megfejtését:\n" + "\n".join(lines)
+    )
+
+
+HUBA_SYSTEM_PROMPT += load_glossary()
+print(f">>> System prompt ready ({len(HUBA_SYSTEM_PROMPT)} characters).")
 
 GEMINI_MODEL_NAME = "gemini-3.5-flash"
 # google_search enables real-time Google Search grounding: for queries like
@@ -380,6 +429,7 @@ def media_stream(ws):
         sample_rate="8000",
         channels="1",
         interim_results="true",
+        keyterm=DEEPGRAM_KEYTERMS or None,
     ) as dg_connection:
 
         def on_message(message):
