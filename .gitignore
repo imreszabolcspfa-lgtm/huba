@@ -11,3 +11,4 @@ ngrok.exe
 # Python
 __pycache__/
 *.pyc
+.venv/

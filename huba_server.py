@@ -10,8 +10,9 @@ import threading
 import queue
 import random
 from collections import deque
-from flask import Flask, Response
+from flask import Flask, Response, request
 from flask_sock import Sock
+from simple_websocket import ConnectionClosed
 import audioop
 from google import genai
 from google.genai import types as genai_types
@@ -261,7 +262,11 @@ def send_audio_to_twilio(ws, stream_sid: str, mulaw_bytes: bytes):
             "streamSid": stream_sid,
             "media": {"payload": base64.b64encode(frame).decode("ascii")},
         }
-        ws.send(json.dumps(message))
+        try:
+            ws.send(json.dumps(message))
+        except ConnectionClosed:
+            # Caller hung up mid-reply: stop playing instead of crashing.
+            return
         time.sleep(0.02)  # pace roughly at real-time (20ms per frame)
 
 
@@ -287,12 +292,17 @@ def keep_deepgram_alive_during(dg_connection, blocking_fn):
         stop.set()
 
 
-@app.route("/voice", methods=["POST"])
+# GET is accepted too: a Twilio number whose webhook method is left on GET
+# would otherwise get a 405 and the caller hears "application error".
+@app.route("/voice", methods=["GET", "POST"])
 def voice():
+    # Behind ngrok / a reverse proxy the public hostname arrives in
+    # X-Forwarded-Host; fall back to Host when running without a proxy.
+    host = request.headers.get("X-Forwarded-Host") or request.host
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Connect>
-        <Stream url="wss://{__import__('flask').request.host}/media-stream" />
+        <Stream url="wss://{host}/media-stream" />
     </Connect>
 </Response>"""
     return Response(twiml, mimetype="text/xml")
@@ -370,7 +380,10 @@ def media_stream(ws):
         print(">>> Deepgram streaming connection open.")
 
         while True:
-            message = ws.receive()
+            try:
+                message = ws.receive()
+            except ConnectionClosed:
+                message = None
             if message is None:
                 print(">>> Media stream closed")
                 break
@@ -486,6 +499,7 @@ def media_stream(ws):
             elif event == "stop":
                 print(">>> Call stream stopped.")
                 dg_connection.send_close_stream()
+                break
 
 
 if __name__ == "__main__":
